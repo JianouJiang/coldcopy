@@ -5,6 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Paywall } from '@/components/Paywall';
+import { UpgradeBanner } from '@/components/UpgradeBanner';
+import {
+  shouldShowUpgradeBanner,
+  trackCTAShown,
+  trackCTAClicked,
+} from '@/lib/generationTracker';
 
 interface Email {
   subjectLineA: string;
@@ -22,6 +28,7 @@ export default function Output() {
   const [sequence, setSequence] = useState<Sequence | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('sequence');
@@ -32,6 +39,7 @@ export default function Output() {
 
     try {
       setSequence(JSON.parse(stored));
+      setShowBanner(shouldShowUpgradeBanner());
     } catch (error) {
       console.error('Failed to parse sequence:', error);
       navigate('/generate');
@@ -50,13 +58,28 @@ export default function Output() {
     });
   };
 
+  const handleUpgradeClick = (tier: 'starter' | 'pro') => {
+    trackCTAClicked(tier, 'modal');
+  };
+
+  const handleBannerUpgradeClick = () => {
+    setShowPaywall(true);
+    trackCTAShown('banner');
+  };
+
   if (!sequence) {
     return null;
   }
 
   return (
     <>
-      <Paywall isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+      <Paywall
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        source="modal"
+        onUpgradeClick={handleUpgradeClick}
+      />
+      {showBanner && <UpgradeBanner onUpgradeClick={handleBannerUpgradeClick} />}
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 max-w-4xl py-12">
           <div className="space-y-8">

@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface PaywallProps {
   isOpen: boolean;
   onClose: () => void;
+  source?: 'modal' | 'banner';
+  onUpgradeClick?: (tier: 'starter' | 'pro') => void;
 }
 
-export function Paywall({ isOpen, onClose }: PaywallProps) {
+export function Paywall({ isOpen, onClose, onUpgradeClick }: PaywallProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -94,7 +96,12 @@ export function Paywall({ isOpen, onClose }: PaywallProps) {
                 </li>
               </ul>
 
-              <a href={STARTER_LINK} target="_blank" rel="noopener noreferrer">
+              <a
+                href={STARTER_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => onUpgradeClick?.('starter')}
+              >
                 <Button size="lg" variant="outline" className="w-full">
                   Get Starter
                 </Button>
@@ -146,7 +153,12 @@ export function Paywall({ isOpen, onClose }: PaywallProps) {
                 </li>
               </ul>
 
-              <a href={PRO_LINK} target="_blank" rel="noopener noreferrer">
+              <a
+                href={PRO_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => onUpgradeClick?.('pro')}
+              >
                 <Button size="lg" className="w-full">
                   Go Pro
                 </Button>

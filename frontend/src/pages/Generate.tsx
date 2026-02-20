@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Paywall } from "@/components/Paywall";
+import { UpgradeBanner } from "@/components/UpgradeBanner";
+import {
+  incrementGenerationCount,
+  shouldShowUpgradeModal,
+  shouldShowUpgradeBanner,
+  trackCTAShown,
+  trackCTAClicked,
+} from "@/lib/generationTracker";
 
 interface FormData {
   companyName: string;
@@ -53,6 +61,12 @@ export default function Generate() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
+
+  // Check if user should see upgrade banner on mount
+  useEffect(() => {
+    setShowBanner(shouldShowUpgradeBanner());
+  }, []);
 
   // Character limits (from design spec)
   const limits = {
@@ -171,8 +185,20 @@ export default function Generate() {
         }
 
         const result = await response.json();
+
+        // Increment generation counter
+        incrementGenerationCount();
+
         // Store sequence in sessionStorage for the output page
         sessionStorage.setItem('sequence', JSON.stringify(result.sequence));
+
+        // Check if we should show upgrade modal (exactly at 3rd generation)
+        if (shouldShowUpgradeModal()) {
+          setShowPaywall(true);
+          trackCTAShown('modal');
+        }
+
+        // Navigate to output page
         navigate('/output');
       } catch (error) {
         console.error('Generation error:', error);
@@ -206,9 +232,24 @@ export default function Generate() {
     return `${current}/${max}`;
   };
 
+  const handleUpgradeClick = (tier: 'starter' | 'pro') => {
+    trackCTAClicked(tier, 'modal');
+  };
+
+  const handleBannerUpgradeClick = () => {
+    setShowPaywall(true);
+    trackCTAShown('banner');
+  };
+
   return (
     <>
-      <Paywall isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+      <Paywall
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        source="modal"
+        onUpgradeClick={handleUpgradeClick}
+      />
+      {showBanner && <UpgradeBanner onUpgradeClick={handleBannerUpgradeClick} />}
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 max-w-2xl py-12">
         <div className="space-y-8">
