@@ -179,7 +179,7 @@ Return ONLY this JSON structure:
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 4096,
         system: systemPrompt,
         messages: [
@@ -201,7 +201,16 @@ Return ONLY this JSON structure:
     }
 
     const data = await response.json() as any;
+    console.log('Claude response status:', response.status);
+    console.log('Claude response has content:', !!data.content);
+
+    if (!data.content || !data.content[0] || !data.content[0].text) {
+      console.error('Invalid Claude response structure:', data);
+      throw new Error(`Invalid Claude response structure: ${JSON.stringify(data)}`);
+    }
+
     const content = data.content[0].text;
+    console.log('Claude generated content length:', content.length);
 
     // Validate and parse response
     return validateClaudeResponse(content);
@@ -220,6 +229,11 @@ Return ONLY this JSON structure:
  */
 export async function onRequest(context: Context): Promise<Response> {
   const { request, env } = context;
+  console.log('Generate endpoint called, method:', request.method);
+  console.log('API key present:', !!env.ANTHROPIC_API_KEY);
+  console.log('DB available:', !!env.DB);
+  console.log('RATE_LIMIT available:', !!env.RATE_LIMIT);
+
   // Only allow POST
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -361,6 +375,10 @@ export async function onRequest(context: Context): Promise<Response> {
     );
   } catch (error) {
     console.error('Generate error:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
 
     // Check if it's a validation error from Claude
     if (error instanceof Error) {
@@ -384,10 +402,12 @@ export async function onRequest(context: Context): Promise<Response> {
       }
     }
 
+    // Return detailed error for debugging
     return new Response(
       JSON.stringify({
         error: 'internal_error',
         message: 'An unexpected error occurred. Please try again.',
+        detail: error instanceof Error ? error.message : String(error),
       }),
       { status: 500, headers: { 'content-type': 'application/json' } }
     );

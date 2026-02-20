@@ -4,6 +4,14 @@
   "exclude": ["/assets/*", "/favicon.ico"],
   "rules": [
     {
+      "pattern": "/api/test-echo",
+      "function": "api/test-echo"
+    },
+    {
+      "pattern": "/api/debug",
+      "function": "api/debug"
+    },
+    {
       "pattern": "/api/generate",
       "function": "api/generate"
     },
