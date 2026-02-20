@@ -1,76 +1,81 @@
-# ColdCopy Deployment Guide
+# ColdCopy — Quick Deployment Guide
 
-## Step 1: Create GitHub Repository
-
-Since `gh` CLI needs authentication setup, create the repo manually:
-
-1. Go to https://github.com/new
-2. Repository name: `coldcopy`
-3. Description: "AI-powered cold email sequence generator for B2B SaaS founders"
-4. Visibility: Public
-5. Do NOT initialize with README (we already have one)
-6. Click "Create repository"
-
-## Step 2: Push Code to GitHub
+## Deploy Frontend to Production
 
 ```bash
+# 1. Build
+cd /home/jianoujiang/Desktop/proxima-auto-company/projects/coldcopy/frontend
+npm run build
+
+# 2. Deploy to Cloudflare Pages
 cd /home/jianoujiang/Desktop/proxima-auto-company/projects/coldcopy
+wrangler pages deploy frontend/dist --project-name=coldcopy
 
-# Add the remote (replace JianouJiang with your GitHub username if different)
-git remote add origin https://github.com/JianouJiang/coldcopy.git
-
-# Rename branch to main
-git branch -M main
-
-# Push to GitHub
-git push -u origin main
+# 3. Verify
+curl -I https://coldcopy.app
+# Should return 200 OK
 ```
 
-## Step 3: Verify Deployment
+## Configure Stripe Payment Links
 
-Visit: https://github.com/JianouJiang/coldcopy
+**Before accepting payments, set the success URL:**
 
-You should see:
-- README.md with project description
-- Landing page code in `frontend/src/pages/Landing.tsx`
-- Design system in `frontend/src/index.css`
-- Button component in `frontend/src/components/ui/button.tsx`
+1. Go to https://dashboard.stripe.com/payment-links
+2. Click **Starter Payment Link** (`price_1Qkw...`)
+3. Edit → After payment
+4. Set **Success URL**: `https://coldcopy.app/success?session_id={CHECKOUT_SESSION_ID}`
+5. Set **Cancel URL**: `https://coldcopy.app/cancel`
+6. Save
+7. Repeat for **Pro Payment Link**
 
-## Step 4: Local Development
+## Test Payment Flow
 
-To run the app locally:
+```bash
+# Test in Stripe Test Mode first:
+1. Create test Payment Links in Stripe Dashboard (Test Mode)
+2. Temporarily update Paywall.tsx with test links
+3. Deploy: wrangler pages deploy frontend/dist --project-name=coldcopy-staging
+4. Test with card: 4242 4242 4242 4242
+5. Verify redirect to /success
+6. Restore live Payment Links
+7. Deploy to production
+```
+
+## Manual Quota Upgrade (First Customers)
+
+When payment notification arrives:
+
+```bash
+# Update user's quota in D1
+wrangler d1 execute coldcopy-db --command="
+  UPDATE tiers
+  SET quota = 9999, tier_name = 'Pro'
+  WHERE fingerprint = '<fingerprint>';
+"
+
+# Send welcome email
+# Subject: Welcome to ColdCopy Pro!
+# Your unlimited quota is now active.
+```
+
+**SLA:** Within 24 hours
+
+## Monitoring
+
+Daily checks:
+- Stripe Dashboard → Payments (new purchases?)
+- Cloudflare Analytics → Traffic/errors
+- User feedback emails
+
+## Local Development
 
 ```bash
 cd /home/jianoujiang/Desktop/proxima-auto-company/projects/coldcopy/frontend
 npm run dev
 ```
 
-Open http://localhost:5173 to see the landing page.
+Open http://localhost:5173
 
-## Next Steps
+---
 
-1. **Day 2-3:** DHH builds the input form and generate page
-2. **Day 4:** DevOps deploys to Cloudflare Pages
-3. **Day 5:** Stripe Payment Links integration
-4. **Day 6:** QA testing
-5. **Day 7:** Production launch
-
-## GitHub CLI Setup (Optional)
-
-To use `gh` CLI in future:
-
-```bash
-# Authenticate
-gh auth login
-
-# Follow prompts:
-# - Choose GitHub.com
-# - Choose HTTPS
-# - Authenticate via web browser
-# - Complete authentication in browser
-```
-
-Once authenticated, you can use:
-```bash
-gh repo create coldcopy --public --description "..." --source=. --push
-```
+**That's it.** Ship it and iterate.

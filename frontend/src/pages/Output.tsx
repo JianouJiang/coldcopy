@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { Paywall } from '@/components/Paywall';
 
 interface Email {
   subjectLineA: string;
@@ -20,6 +21,7 @@ export default function Output() {
   const { toast } = useToast();
   const [sequence, setSequence] = useState<Sequence | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('sequence');
@@ -53,9 +55,11 @@ export default function Output() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 max-w-4xl py-12">
-        <div className="space-y-8">
+    <>
+      <Paywall isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 max-w-4xl py-12">
+          <div className="space-y-8">
           {/* Header */}
           <div className="space-y-4">
             <button
@@ -164,7 +168,11 @@ export default function Output() {
             <p className="text-muted-foreground max-w-lg mx-auto">
               Upgrade to generate unlimited sequences with custom variations and advanced features.
             </p>
-            <Button size="lg" className="bg-primary hover:bg-primary/90">
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90"
+              onClick={() => setShowPaywall(true)}
+            >
               Upgrade Now
             </Button>
           </div>
@@ -178,8 +186,9 @@ export default function Output() {
               Generate Another Sequence
             </Button>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
