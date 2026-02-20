@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
+import Generate from "./pages/Generate";
 
 function App() {
   return (
@@ -7,7 +8,7 @@ function App() {
       <div className="dark min-h-screen">
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/generate" element={<div className="p-8 text-center text-foreground">Generate Page (Coming Soon)</div>} />
+          <Route path="/generate" element={<Generate />} />
         </Routes>
       </div>
     </Router>
