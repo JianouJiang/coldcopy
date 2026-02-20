@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   companyName: string;
@@ -36,6 +37,7 @@ interface FormErrors {
 
 export default function Generate() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
     targetJobTitle: "",
@@ -48,6 +50,7 @@ export default function Generate() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   // Character limits (from design spec)
   const limits = {
@@ -104,7 +107,7 @@ export default function Generate() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate all fields
@@ -134,11 +137,48 @@ export default function Generate() {
     });
     setTouched(allTouched);
 
-    // If no errors, proceed
+    // If no errors, submit to API
     if (Object.keys(newErrors).length === 0) {
-      console.log("Form submitted successfully:", formData);
-      // Placeholder: Log to console until API integration in Cycle 5
-      alert("Form is valid! Check console for data. (API integration coming in Cycle 5)");
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.status === 402) {
+          toast({
+            message: 'You have reached your generation limit. Upgrade to continue.',
+            type: 'error',
+          });
+          return;
+        }
+
+        if (!response.ok) {
+          const error = await response.json();
+          toast({
+            message: error.message || 'Failed to generate sequence. Please try again.',
+            type: 'error',
+          });
+          return;
+        }
+
+        const result = await response.json();
+        // Store sequence in sessionStorage for the output page
+        sessionStorage.setItem('sequence', JSON.stringify(result.sequence));
+        navigate('/output');
+      } catch (error) {
+        console.error('Generation error:', error);
+        toast({
+          message: 'An error occurred. Please try again.',
+          type: 'error',
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -404,14 +444,35 @@ export default function Generate() {
             <Separator />
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              disabled={!isFormValid()}
-            >
-              Generate Sequence
-            </Button>
+            {isLoading && (
+              <div className="w-full bg-primary rounded-lg p-4 space-y-2">
+                <div className="text-sm font-medium text-primary-foreground text-center">
+                  Generating your sequence...
+                </div>
+                {/* 12-second progress bar animation */}
+                <div className="w-full bg-primary-foreground/20 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-primary-foreground h-full rounded-full transition-all"
+                    style={{
+                      animation: 'progressBar 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                    }}
+                  />
+                </div>
+                <div className="text-xs text-primary-foreground/70 text-center">
+                  This usually takes 3-5 seconds...
+                </div>
+              </div>
+            )}
+            {!isLoading && (
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={!isFormValid()}
+              >
+                Generate Sequence
+              </Button>
+            )}
 
             <p className="text-xs text-center text-muted-foreground">
               All fields marked with * are required

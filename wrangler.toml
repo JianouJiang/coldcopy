@@ -1,6 +1,17 @@
 name = "coldcopy"
 pages_build_output_dir = "frontend/dist"
 
+# Database bindings
+[[d1_databases]]
+binding = "DB"
+database_name = "coldcopy-db"
+database_id = "placeholder"
+
+# KV namespace for rate limiting
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "placeholder"
+
 # GitHub integration auto-deploy
 # Build command: npm run build
 # Node version: 18

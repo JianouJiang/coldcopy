@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Generate from "./pages/Generate";
+import Output from "./pages/Output";
+import { ToastContainer } from "./components/Toast";
 
 function App() {
   return (
@@ -9,7 +11,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/generate" element={<Generate />} />
+          <Route path="/output" element={<Output />} />
         </Routes>
+        <ToastContainer />
       </div>
     </Router>
   );
