@@ -287,23 +287,22 @@ export async function onRequest(context: Context): Promise<Response> {
     // Get or create session
     const { sessionId, isNew } = await getOrCreateSession(request, env);
 
-    // Check session quota (D1 - total generations allowed)
-    if (!isNew) {
-      const sessionData = await env.DB.prepare(`
-        SELECT generations_used, max_generations
-        FROM sessions
-        WHERE id = ?
-      `).bind(sessionId).first<{ generations_used: number; max_generations: number }>();
+    // Check session quota FIRST (D1 - total generations allowed)
+    // This must come before rate limit check to ensure proper HTTP status codes
+    const sessionData = await env.DB.prepare(`
+      SELECT generations_used, max_generations
+      FROM sessions
+      WHERE id = ?
+    `).bind(sessionId).first<{ generations_used: number; max_generations: number }>();
 
-      if (sessionData && sessionData.generations_used >= sessionData.max_generations) {
-        return new Response(
-          JSON.stringify({
-            error: 'quota_exceeded',
-            message: 'You have used all your free generations. Upgrade to continue.',
-          }),
-          { status: 402, headers: { 'content-type': 'application/json' } }
-        );
-      }
+    if (sessionData && sessionData.generations_used >= sessionData.max_generations) {
+      return new Response(
+        JSON.stringify({
+          error: 'quota_exceeded',
+          message: 'You have used all your free generations. Upgrade to continue.',
+        }),
+        { status: 402, headers: { 'content-type': 'application/json' } }
+      );
     }
 
     // Check rate limit (KV - requests per hour)
@@ -335,23 +334,25 @@ export async function onRequest(context: Context): Promise<Response> {
       }
     }
 
-    // Store sequence and update session
+    // Store sequence and update session (sequential to avoid race condition)
     const sequenceId = uuidv4();
-    await Promise.all([
-      env.DB.prepare(`
-        INSERT INTO sequences (id, session_id, input, output)
-        VALUES (?, ?, ?, ?)
-      `)
-        .bind(sequenceId, sessionId, JSON.stringify(input), JSON.stringify(sequence))
-        .run(),
-      env.DB.prepare(`
-        UPDATE sessions
-        SET generations_used = generations_used + 1, updated_at = datetime('now')
-        WHERE id = ?
-      `)
-        .bind(sessionId)
-        .run(),
-    ]);
+
+    // First, insert the sequence
+    await env.DB.prepare(`
+      INSERT INTO sequences (id, session_id, input, output)
+      VALUES (?, ?, ?, ?)
+    `)
+      .bind(sequenceId, sessionId, JSON.stringify(input), JSON.stringify(sequence))
+      .run();
+
+    // Then, update session generation count
+    await env.DB.prepare(`
+      UPDATE sessions
+      SET generations_used = generations_used + 1, updated_at = datetime('now')
+      WHERE id = ?
+    `)
+      .bind(sessionId)
+      .run();
 
     // Prepare response headers with session cookie
     const responseHeaders: Record<string, string> = {
