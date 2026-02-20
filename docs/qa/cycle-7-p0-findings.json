@@ -1,0 +1,24 @@
+{
+  "test_date": "2026-02-20T11:12:14.402043",
+  "url": "https://3bcc41e1.coldcopy-au3.pages.dev",
+  "tests": [
+    {
+      "id": "P0-1",
+      "name": "Happy Path - Form Submission & Email Generation",
+      "status": "FAIL",
+      "evidence": "Expected 7 emails, got 8",
+      "notes": "API is returning 8 email(s) instead of 7. This is a REGRESSION from previous tests."
+    },
+    {
+      "id": "P0-2",
+      "name": "Rate Limiting - 2nd Generation Returns 402",
+      "status": "FAIL",
+      "evidence": "2nd request returned HTTP 200, expected 402",
+      "notes": "Rate limiter not enforced - this is a critical bug for business model"
+    }
+  ],
+  "notes": [
+    "CRITICAL BUG: P0-1 FAILED - Expected 7 emails but got 8",
+    "CRITICAL BUG: P0-2 FAILED - Rate limiting not working"
+  ]
+}

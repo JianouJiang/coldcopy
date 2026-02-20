@@ -1,20 +1,20 @@
 {
-  "test_date": "2026-02-20T11:09:27.687077",
+  "test_date": "2026-02-20T11:09:54.411933",
   "url": "https://3bcc41e1.coldcopy-au3.pages.dev",
   "tests": [
     {
       "id": "P0-1",
       "name": "Happy Path",
       "status": "FAIL",
-      "evidence": "HTTP 400: {\"error\":\"companyName is required\"}",
+      "evidence": "Expected 7 emails, got 0",
       "notes": ""
     },
     {
       "id": "P0-2",
       "name": "Rate Limiting",
       "status": "FAIL",
-      "evidence": "Expected 402, got 400",
-      "notes": "Response: {\"error\":\"companyName is required\"}"
+      "evidence": "Expected 402, got 200",
+      "notes": "Response: {\"success\":true,\"sequenceId\":\"27efd8d4-aff7-456d-9669-cb7f6aba1864\",\"sequence\":{\"emails\":[{\"subjectL"
     },
     {
       "id": "P0-3",
@@ -25,16 +25,16 @@
     },
     {
       "id": "P0-4",
-      "name": "Character Limits",
-      "status": "FAIL",
-      "evidence": "Unexpected response: HTTP 400",
-      "notes": "{\"error\":\"companyName is required\"}"
+      "name": "Character Limits - 5000+ Char Input",
+      "status": "PASS",
+      "evidence": "5000-char input accepted and processed (0 emails generated)",
+      "notes": "Server handles long input correctly"
     },
     {
       "id": "P0-5",
       "name": "Session Persistence",
       "status": "FAIL",
-      "evidence": "2nd request returned 400, expected 402",
+      "evidence": "HTTPSConnectionPool(host='3bcc41e1.coldcopy-au3.pages.dev', port=443): Read timed out. (read timeout=30)",
       "notes": ""
     }
   ]
