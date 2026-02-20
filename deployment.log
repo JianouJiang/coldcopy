@@ -1,0 +1,31 @@
+
+ ⛅️ wrangler 4.67.0
+───────────────────
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mWarning: Your working directory is a git repo and has uncommitted changes[0m
+
+  To silence this warning, pass in --commit-dirty=true
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProcessing wrangler.toml configuration:[0m
+
+  
+    - "env.production" environment configuration
+      - "kv_namespaces" exists at the top level, but not on "env.production".
+        This is not what you probably want, since "kv_namespaces" is not inherited by environments.
+        Please add "kv_namespaces" to "env.production".
+      - "d1_databases" exists at the top level, but not on "env.production".
+        This is not what you probably want, since "d1_databases" is not inherited by environments.
+        Please add "d1_databases" to "env.production".
+
+
+✨ Compiled Worker successfully
+Uploading... (1/4)
+Uploading... (2/4)
+Uploading... (3/4)
+Uploading... (4/4)
+✨ Success! Uploaded 3 files (1 already uploaded) (0.58 sec)
+
+✨ Uploading Functions bundle
+✨ Uploading _routes.json
+🌎 Deploying...
+✨ Deployment complete! Take a peek over at https://60cf7826.coldcopy-au3.pages.dev

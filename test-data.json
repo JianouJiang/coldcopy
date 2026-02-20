@@ -1,0 +1,198 @@
+{
+  "valid_datasets": {
+    "happy_path": {
+      "companyName": "Acme Analytics",
+      "targetJobTitle": "VP of Marketing",
+      "problemTheyFace": "They lose 30-40% of revenue to cart abandonment but don't know why",
+      "yourProduct": "Real-time analytics dashboard for e-commerce stores. Shows conversion funnels, cart abandonment, and LTV cohorts.",
+      "keyBenefit": "Identify why 60% of carts abandon in under 10 seconds",
+      "callToAction": "Book a 15-min demo",
+      "tone": "Professional"
+    },
+    "second_generation": {
+      "companyName": "TechCorp",
+      "targetJobTitle": "CTO",
+      "problemTheyFace": "Infrastructure scaling is expensive and time-consuming",
+      "yourProduct": "Cloud optimization platform for DevOps teams",
+      "keyBenefit": "Reduce cloud costs by 40% automatically",
+      "callToAction": "Schedule a consultation",
+      "tone": "Direct"
+    },
+    "alternative_1": {
+      "companyName": "DataFlow",
+      "targetJobTitle": "Engineering Manager",
+      "problemTheyFace": "Data pipelines fail silently, causing millions in lost insights",
+      "yourProduct": "Real-time data quality monitoring and alerting system",
+      "keyBenefit": "Catch data issues before they impact business decisions",
+      "callToAction": "Start free trial",
+      "tone": "Urgent"
+    },
+    "alternative_2": {
+      "companyName": "CloudNine",
+      "targetJobTitle": "Head of Operations",
+      "problemTheyFace": "Multi-region deployments are complex and error-prone",
+      "yourProduct": "Automated cloud infrastructure management platform",
+      "keyBenefit": "Deploy globally with zero manual configuration",
+      "callToAction": "Request demo",
+      "tone": "Confident"
+    }
+  },
+  "edge_cases": {
+    "minimum_length": {
+      "companyName": "A",
+      "targetJobTitle": "B",
+      "problemTheyFace": "Minimum 10 c",
+      "yourProduct": "Product 10 c",
+      "keyBenefit": "Benefit 10 c",
+      "callToAction": "CTA 10 char",
+      "tone": "Professional"
+    },
+    "maximum_length": {
+      "companyName": "Lorem ipsum dolor sit amet consectetur adipisc",
+      "targetJobTitle": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et",
+      "problemTheyFace": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo",
+      "yourProduct": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim",
+      "keyBenefit": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore",
+      "callToAction": "Lorem ipsum dolor sit amet consectetur adipi",
+      "tone": "Professional"
+    },
+    "whitespace_only": {
+      "companyName": "   ",
+      "targetJobTitle": "    ",
+      "problemTheyFace": "          ",
+      "yourProduct": "   ",
+      "keyBenefit": "   ",
+      "callToAction": "   ",
+      "tone": "Professional"
+    },
+    "leading_trailing_spaces": {
+      "companyName": "  Acme  ",
+      "targetJobTitle": "  VP Marketing  ",
+      "problemTheyFace": "  They have a problem that needs solving  ",
+      "yourProduct": "  A product that solves the problem  ",
+      "keyBenefit": "  Benefit that customers get  ",
+      "callToAction": "  Schedule a demo  ",
+      "tone": "Professional"
+    },
+    "special_characters": {
+      "companyName": "O'Reilly Automation & Analytics, Inc.",
+      "targetJobTitle": "VP of \"Data Engineering\"",
+      "problemTheyFace": "We're losing customers 😭 because our system can't handle <complex> data & API calls",
+      "yourProduct": "Real-time analytics dashboard (SaaS) with 24/7 monitoring & alerts for developers",
+      "keyBenefit": "Reduce downtime by 75% + save $$ on infrastructure costs",
+      "callToAction": "Request a demo (limited time offer 50% off)",
+      "tone": "Professional"
+    },
+    "sql_injection_attempt": {
+      "companyName": "'; DROP TABLE companies; --",
+      "targetJobTitle": "CTO",
+      "problemTheyFace": "They need better data management solutions for business",
+      "yourProduct": "Cloud database optimization platform",
+      "keyBenefit": "Improve query performance by 10x",
+      "callToAction": "Book a call",
+      "tone": "Professional"
+    },
+    "xss_attempt": {
+      "companyName": "<script>alert('XSS')</script>",
+      "targetJobTitle": "<img src=x onerror=\"alert('XSS')\">",
+      "problemTheyFace": "They have <b>bold</b> problems and <i>italic</i> issues with HTML tags",
+      "yourProduct": "<u>Underlined</u> product that is <strong>powerful</strong>",
+      "keyBenefit": "Benefits with <marquee>scrolling text</marquee> and more",
+      "callToAction": "Click <a href=javascript:alert('XSS')>here</a>",
+      "tone": "Professional"
+    },
+    "unicode_characters": {
+      "companyName": "Ñoño Technologies 中文 العربية",
+      "targetJobTitle": "VP Ελληνικά 日本語 한국어",
+      "problemTheyFace": "Problemas com caracteres acentuados: àáâãäå èéêë ìíîï òóôõö ùúûü",
+      "yourProduct": "Product with emoji: 🚀 ⭐ 💡 ✨ 🎯",
+      "keyBenefit": "Benefits in 你好 हिन्दी português ไทย",
+      "callToAction": "Kontakt oss!",
+      "tone": "Professional"
+    }
+  },
+  "invalid_datasets": {
+    "empty_object": {},
+    "missing_required_fields": {
+      "companyName": "Acme"
+    },
+    "null_values": {
+      "companyName": null,
+      "targetJobTitle": null,
+      "problemTheyFace": null,
+      "yourProduct": null,
+      "keyBenefit": null,
+      "callToAction": null,
+      "tone": null
+    },
+    "wrong_data_types": {
+      "companyName": 12345,
+      "targetJobTitle": ["array", "of", "values"],
+      "problemTheyFace": {"nested": "object"},
+      "yourProduct": true,
+      "keyBenefit": false,
+      "callToAction": 99.99,
+      "tone": "Professional"
+    },
+    "invalid_tone": {
+      "companyName": "Acme",
+      "targetJobTitle": "VP",
+      "problemTheyFace": "They have a problem",
+      "yourProduct": "A product",
+      "keyBenefit": "A benefit",
+      "callToAction": "Call us",
+      "tone": "InvalidTone"
+    }
+  },
+  "tones_valid": [
+    "Professional",
+    "Direct",
+    "Urgent",
+    "Confident",
+    "Friendly",
+    "Casual"
+  ],
+  "field_limits": {
+    "companyName": {
+      "min": 1,
+      "max": 50,
+      "description": "Company name or client name"
+    },
+    "targetJobTitle": {
+      "min": 1,
+      "max": 100,
+      "description": "Job title of target prospect"
+    },
+    "problemTheyFace": {
+      "min": 10,
+      "max": 300,
+      "description": "Problem/pain point description"
+    },
+    "yourProduct": {
+      "min": 10,
+      "max": 200,
+      "description": "Product/solution description"
+    },
+    "keyBenefit": {
+      "min": 10,
+      "max": 150,
+      "description": "Key benefit or outcome"
+    },
+    "callToAction": {
+      "min": 10,
+      "max": 100,
+      "description": "Call-to-action text"
+    },
+    "tone": {
+      "type": "enum",
+      "values": ["Professional", "Direct", "Urgent", "Confident", "Friendly", "Casual"],
+      "description": "Tone of voice for emails"
+    }
+  },
+  "usage_instructions": {
+    "copy_paste_ready": "All 'valid_datasets' entries are ready to copy-paste directly into ColdCopy form fields",
+    "edge_cases": "Use 'edge_cases' to test character limits, special characters, and validation rules",
+    "invalid_datasets": "Use 'invalid_datasets' to verify error handling and form validation",
+    "field_limits": "Reference table for understanding min/max constraints on each field"
+  }
+}
