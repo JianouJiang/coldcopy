@@ -3,17 +3,28 @@ pages_build_output_dir = "frontend/dist"
 compatibility_date = "2024-12-16"
 compatibility_flags = ["nodejs_compat"]
 
-[env.production]
-vars = { ENVIRONMENT = "production" }
-
-# Database bindings
+# Database bindings (global)
 [[d1_databases]]
 binding = "DB"
 database_name = "coldcopy-db"
 database_id = "413b402d-f259-4b79-b7e4-3ab887c8a431"
 
-# KV namespace for rate limiting
+# KV namespace for rate limiting (global)
 [[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "82359391e9704000a8d5f1efadf9b27f"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# Production environment D1 binding
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "coldcopy-db"
+database_id = "413b402d-f259-4b79-b7e4-3ab887c8a431"
+
+# Production environment KV binding
+[[env.production.kv_namespaces]]
 binding = "RATE_LIMIT"
 id = "82359391e9704000a8d5f1efadf9b27f"
 
