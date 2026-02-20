@@ -29,3 +29,33 @@ Uploading... (4/4)
 ✨ Uploading _routes.json
 🌎 Deploying...
 ✨ Deployment complete! Take a peek over at https://60cf7826.coldcopy-au3.pages.dev
+
+=== CYCLE 7 DEPLOYMENT — 2026-02-20 ===
+
+DEPLOYMENT COMPLETE: 11:40 UTC
+- Built frontend (6.5s, 117KB gzipped)
+- Deployed to Cloudflare Pages
+- Production URL: https://e937fb4b.coldcopy-au3.pages.dev
+- All components verified: Paywall, Success page, Cancel page
+- API returns 402 on quota exceeded
+- Routes configured: /generate, /success, /cancel
+
+STATUS: LIVE (awaiting Stripe Dashboard URL update)
+
+DOCUMENTATION CREATED:
+- /docs/devops/cycle-7-stripe-deployment.md (technical runbook)
+- /STRIPE-DEPLOYMENT-UPDATE.md (manual update guide)
+- /DEPLOYMENT-SUMMARY.md (executive summary)
+- /update-stripe-urls.py (API script)
+
+NEXT ACTION:
+Founder must update Stripe Payment Links URLs in Dashboard (5 min)
+- Success URL: https://e937fb4b.coldcopy-au3.pages.dev/success?session_id={CHECKOUT_SESSION_ID}
+- Cancel URL: https://e937fb4b.coldcopy-au3.pages.dev/cancel
+
+See STRIPE-DEPLOYMENT-UPDATE.md for step-by-step instructions.
+
+GIT COMMITS:
+- ee7df31: devops: Deploy Stripe integration to production
+- 2cd6edf: devops: Add Stripe deployment summary
+
