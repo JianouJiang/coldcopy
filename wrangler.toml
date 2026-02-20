@@ -1,0 +1,6 @@
+name = "coldcopy"
+pages_build_output_dir = "frontend/dist"
+
+# GitHub integration auto-deploy
+# Build command: npm run build
+# Node version: 18
