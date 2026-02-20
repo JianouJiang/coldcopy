@@ -269,15 +269,34 @@ export async function onRequest(context: Context): Promise<Response> {
     // Get or create session
     const { sessionId, isNew } = await getOrCreateSession(request, env);
 
-    // Check rate limit
+    // Check session quota (D1 - total generations allowed)
+    if (!isNew) {
+      const sessionData = await env.DB.prepare(`
+        SELECT generations_used, max_generations
+        FROM sessions
+        WHERE id = ?
+      `).bind(sessionId).first<{ generations_used: number; max_generations: number }>();
+
+      if (sessionData && sessionData.generations_used >= sessionData.max_generations) {
+        return new Response(
+          JSON.stringify({
+            error: 'quota_exceeded',
+            message: 'You have used all your free generations. Upgrade to continue.',
+          }),
+          { status: 402, headers: { 'content-type': 'application/json' } }
+        );
+      }
+    }
+
+    // Check rate limit (KV - requests per hour)
     const allowed = await checkRateLimit(sessionId, env);
     if (!allowed) {
       return new Response(
         JSON.stringify({
           error: 'rate_limit_exceeded',
-          message: 'You have reached your generation limit. Upgrade to continue.',
+          message: 'Please wait before generating again. Rate limit: 1 generation per hour.',
         }),
-        { status: 402, headers: { 'content-type': 'application/json' } }
+        { status: 429, headers: { 'content-type': 'application/json' } }
       );
     }
 
