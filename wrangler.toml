@@ -5,12 +5,12 @@ pages_build_output_dir = "frontend/dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "coldcopy-db"
-database_id = "placeholder"
+database_id = "413b402d-f259-4b79-b7e4-3ab887c8a431"
 
 # KV namespace for rate limiting
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
-id = "placeholder"
+id = "82359391e9704000a8d5f1efadf9b27f"
 
 # GitHub integration auto-deploy
 # Build command: npm run build

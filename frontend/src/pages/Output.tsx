@@ -19,7 +19,7 @@ export default function Output() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [sequence, setSequence] = useState<Sequence | null>(null);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('sequence');
@@ -36,7 +36,7 @@ export default function Output() {
     }
   }, [navigate]);
 
-  const copyToClipboard = (index: number, text: string) => {
+  const copyToClipboard = (index: string, text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedIndex(index);
       toast({
