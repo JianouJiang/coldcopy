@@ -16,21 +16,21 @@ import { Separator } from "@/components/ui/separator";
 
 interface FormData {
   companyName: string;
-  icpTitle: string;
-  problem: string;
-  solution: string;
-  benefit: string;
-  cta: string;
+  targetJobTitle: string;
+  problemTheyFace: string;
+  yourProduct: string;
+  keyBenefit: string;
+  callToAction: string;
   tone: string;
 }
 
 interface FormErrors {
   companyName?: string;
-  icpTitle?: string;
-  problem?: string;
-  solution?: string;
-  benefit?: string;
-  cta?: string;
+  targetJobTitle?: string;
+  problemTheyFace?: string;
+  yourProduct?: string;
+  keyBenefit?: string;
+  callToAction?: string;
   tone?: string;
 }
 
@@ -38,35 +38,45 @@ export default function Generate() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
-    icpTitle: "",
-    problem: "",
-    solution: "",
-    benefit: "",
-    cta: "",
-    tone: "professional",
+    targetJobTitle: "",
+    problemTheyFace: "",
+    yourProduct: "",
+    keyBenefit: "",
+    callToAction: "",
+    tone: "Professional",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // Character limits
+  // Character limits (from design spec)
   const limits = {
-    companyName: 100,
-    icpTitle: 100,
-    problem: 500,
-    solution: 500,
-    benefit: 200,
-    cta: 100,
+    companyName: { min: 1, max: 50 },
+    targetJobTitle: { min: 1, max: 100 },
+    problemTheyFace: { min: 10, max: 300 },
+    yourProduct: { min: 10, max: 200 },
+    keyBenefit: { min: 10, max: 150 },
+    callToAction: { min: 10, max: 100 },
   };
 
   const validateField = (name: keyof FormData, value: string): string | undefined => {
-    if (!value.trim()) {
+    // Tone is always valid (dropdown)
+    if (name === "tone") return undefined;
+
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
       return "This field is required";
     }
 
     const limit = limits[name as keyof typeof limits];
-    if (limit && value.length > limit) {
-      return `Maximum ${limit} characters`;
+    if (limit) {
+      if (trimmedValue.length < limit.min) {
+        return `Minimum ${limit.min} characters required`;
+      }
+      if (trimmedValue.length > limit.max) {
+        return `Maximum ${limit.max} characters`;
+      }
     }
 
     return undefined;
@@ -101,11 +111,11 @@ export default function Generate() {
     const newErrors: FormErrors = {};
     const requiredFields: (keyof FormData)[] = [
       "companyName",
-      "icpTitle",
-      "problem",
-      "solution",
-      "benefit",
-      "cta",
+      "targetJobTitle",
+      "problemTheyFace",
+      "yourProduct",
+      "keyBenefit",
+      "callToAction",
     ];
 
     requiredFields.forEach((field) => {
@@ -126,26 +136,29 @@ export default function Generate() {
 
     // If no errors, proceed
     if (Object.keys(newErrors).length === 0) {
-      console.log("Form submitted:", formData);
-      // TODO: Navigate to output page or trigger generation
+      console.log("Form submitted successfully:", formData);
+      // Placeholder: Log to console until API integration in Cycle 5
+      alert("Form is valid! Check console for data. (API integration coming in Cycle 5)");
     }
   };
 
   const isFormValid = () => {
-    return (
+    const hasAllFields =
       formData.companyName.trim() &&
-      formData.icpTitle.trim() &&
-      formData.problem.trim() &&
-      formData.solution.trim() &&
-      formData.benefit.trim() &&
-      formData.cta.trim() &&
-      Object.keys(errors).length === 0
-    );
+      formData.targetJobTitle.trim() &&
+      formData.problemTheyFace.trim() &&
+      formData.yourProduct.trim() &&
+      formData.keyBenefit.trim() &&
+      formData.callToAction.trim();
+
+    const hasNoErrors = Object.values(errors).every((error) => !error);
+
+    return hasAllFields && hasNoErrors;
   };
 
   const getCharCount = (field: keyof typeof limits) => {
     const current = formData[field].length;
-    const max = limits[field];
+    const max = limits[field].max;
     return `${current}/${max}`;
   };
 
@@ -175,10 +188,10 @@ export default function Generate() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Your Product</CardTitle>
+                <CardTitle className="text-xl">Basic Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Company Name */}
+                {/* 1. Company Name */}
                 <div className="space-y-2">
                   <Label htmlFor="companyName">
                     Company Name <span className="text-destructive">*</span>
@@ -190,7 +203,7 @@ export default function Generate() {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("companyName", e.target.value)}
                     onBlur={() => handleBlur("companyName")}
                     className={errors.companyName ? "border-destructive" : ""}
-                    maxLength={limits.companyName}
+                    maxLength={limits.companyName.max}
                   />
                   <div className="flex justify-between items-center">
                     <p className="text-xs text-muted-foreground">
@@ -206,123 +219,30 @@ export default function Generate() {
                   </div>
                 </div>
 
-                {/* Product/Solution */}
+                {/* 2. Target Job Title */}
                 <div className="space-y-2">
-                  <Label htmlFor="solution">
-                    What does your product do? <span className="text-destructive">*</span>
-                  </Label>
-                  <Textarea
-                    id="solution"
-                    placeholder="Real-time analytics dashboard for e-commerce stores. Shows conversion funnels, cart abandonment, and LTV cohorts."
-                    value={formData.solution}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange("solution", e.target.value)}
-                    onBlur={() => handleBlur("solution")}
-                    className={errors.solution ? "border-destructive resize-none" : "resize-none"}
-                    rows={3}
-                    maxLength={limits.solution}
-                  />
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-muted-foreground">
-                      {errors.solution ? (
-                        <span className="text-destructive">{errors.solution}</span>
-                      ) : (
-                        "1-2 sentences describing your product"
-                      )}
-                    </p>
-                    <span className="text-xs text-muted-foreground">
-                      {getCharCount("solution")}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Key Benefit */}
-                <div className="space-y-2">
-                  <Label htmlFor="benefit">
-                    Key Benefit <span className="text-destructive">*</span>
+                  <Label htmlFor="targetJobTitle">
+                    Target Job Title <span className="text-destructive">*</span>
                   </Label>
                   <Input
-                    id="benefit"
-                    placeholder='e.g., "Identify why 60% of carts abandon in under 10 seconds"'
-                    value={formData.benefit}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("benefit", e.target.value)}
-                    onBlur={() => handleBlur("benefit")}
-                    className={errors.benefit ? "border-destructive" : ""}
-                    maxLength={limits.benefit}
+                    id="targetJobTitle"
+                    placeholder="e.g., VP of Marketing"
+                    value={formData.targetJobTitle}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("targetJobTitle", e.target.value)}
+                    onBlur={() => handleBlur("targetJobTitle")}
+                    className={errors.targetJobTitle ? "border-destructive" : ""}
+                    maxLength={limits.targetJobTitle.max}
                   />
                   <div className="flex justify-between items-center">
                     <p className="text-xs text-muted-foreground">
-                      {errors.benefit ? (
-                        <span className="text-destructive">{errors.benefit}</span>
-                      ) : (
-                        "The ONE main benefit prospects care about"
-                      )}
-                    </p>
-                    <span className="text-xs text-muted-foreground">
-                      {getCharCount("benefit")}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Your Target Buyer</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* ICP Title */}
-                <div className="space-y-2">
-                  <Label htmlFor="icpTitle">
-                    Target Job Title(s) <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="icpTitle"
-                    placeholder="e.g., VP Sales at Series A SaaS, Head of Growth"
-                    value={formData.icpTitle}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("icpTitle", e.target.value)}
-                    onBlur={() => handleBlur("icpTitle")}
-                    className={errors.icpTitle ? "border-destructive" : ""}
-                    maxLength={limits.icpTitle}
-                  />
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-muted-foreground">
-                      {errors.icpTitle ? (
-                        <span className="text-destructive">{errors.icpTitle}</span>
+                      {errors.targetJobTitle ? (
+                        <span className="text-destructive">{errors.targetJobTitle}</span>
                       ) : (
                         "Who are you targeting?"
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
-                      {getCharCount("icpTitle")}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Problem */}
-                <div className="space-y-2">
-                  <Label htmlFor="problem">
-                    Main Pain Point <span className="text-destructive">*</span>
-                  </Label>
-                  <Textarea
-                    id="problem"
-                    placeholder="They lose 30-40% of revenue to cart abandonment but don't know why"
-                    value={formData.problem}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange("problem", e.target.value)}
-                    onBlur={() => handleBlur("problem")}
-                    className={errors.problem ? "border-destructive resize-none" : "resize-none"}
-                    rows={3}
-                    maxLength={limits.problem}
-                  />
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-muted-foreground">
-                      {errors.problem ? (
-                        <span className="text-destructive">{errors.problem}</span>
-                      ) : (
-                        "What pain point does your product solve?"
-                      )}
-                    </p>
-                    <span className="text-xs text-muted-foreground">
-                      {getCharCount("problem")}
+                      {getCharCount("targetJobTitle")}
                     </span>
                   </div>
                 </div>
@@ -331,40 +251,135 @@ export default function Generate() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Call to Action & Style</CardTitle>
+                <CardTitle className="text-xl">Problem & Solution</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* CTA */}
+                {/* 3. Problem They Face */}
                 <div className="space-y-2">
-                  <Label htmlFor="cta">
-                    Desired Call to Action <span className="text-destructive">*</span>
+                  <Label htmlFor="problemTheyFace">
+                    Problem They Face <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="cta"
-                    placeholder='e.g., "Book a 15-min demo"'
-                    value={formData.cta}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("cta", e.target.value)}
-                    onBlur={() => handleBlur("cta")}
-                    className={errors.cta ? "border-destructive" : ""}
-                    maxLength={limits.cta}
+                  <Textarea
+                    id="problemTheyFace"
+                    placeholder="e.g., They lose 30-40% of revenue to cart abandonment but don't know why"
+                    value={formData.problemTheyFace}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange("problemTheyFace", e.target.value)}
+                    onBlur={() => handleBlur("problemTheyFace")}
+                    className={errors.problemTheyFace ? "border-destructive resize-none" : "resize-none"}
+                    rows={3}
+                    maxLength={limits.problemTheyFace.max}
                   />
                   <div className="flex justify-between items-center">
                     <p className="text-xs text-muted-foreground">
-                      {errors.cta ? (
-                        <span className="text-destructive">{errors.cta}</span>
+                      {errors.problemTheyFace ? (
+                        <span className="text-destructive">{errors.problemTheyFace}</span>
                       ) : (
-                        "What do you want prospects to do?"
+                        "What pain point does your product solve? (10-300 chars)"
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
-                      {getCharCount("cta")}
+                      {getCharCount("problemTheyFace")}
                     </span>
                   </div>
                 </div>
 
-                {/* Tone */}
+                {/* 4. Your Product */}
                 <div className="space-y-2">
-                  <Label htmlFor="tone">Tone</Label>
+                  <Label htmlFor="yourProduct">
+                    Your Product <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="yourProduct"
+                    placeholder="e.g., Real-time analytics dashboard for e-commerce stores. Shows conversion funnels, cart abandonment, and LTV cohorts."
+                    value={formData.yourProduct}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange("yourProduct", e.target.value)}
+                    onBlur={() => handleBlur("yourProduct")}
+                    className={errors.yourProduct ? "border-destructive resize-none" : "resize-none"}
+                    rows={3}
+                    maxLength={limits.yourProduct.max}
+                  />
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-muted-foreground">
+                      {errors.yourProduct ? (
+                        <span className="text-destructive">{errors.yourProduct}</span>
+                      ) : (
+                        "What does your product do? (10-200 chars)"
+                      )}
+                    </p>
+                    <span className="text-xs text-muted-foreground">
+                      {getCharCount("yourProduct")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 5. Key Benefit */}
+                <div className="space-y-2">
+                  <Label htmlFor="keyBenefit">
+                    Key Benefit <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="keyBenefit"
+                    placeholder='e.g., "Identify why 60% of carts abandon in under 10 seconds"'
+                    value={formData.keyBenefit}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("keyBenefit", e.target.value)}
+                    onBlur={() => handleBlur("keyBenefit")}
+                    className={errors.keyBenefit ? "border-destructive" : ""}
+                    maxLength={limits.keyBenefit.max}
+                  />
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-muted-foreground">
+                      {errors.keyBenefit ? (
+                        <span className="text-destructive">{errors.keyBenefit}</span>
+                      ) : (
+                        "The ONE main benefit prospects care about (10-150 chars)"
+                      )}
+                    </p>
+                    <span className="text-xs text-muted-foreground">
+                      {getCharCount("keyBenefit")}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Call to Action & Tone</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* 6. Call to Action */}
+                <div className="space-y-2">
+                  <Label htmlFor="callToAction">
+                    Call to Action <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="callToAction"
+                    placeholder='e.g., "Book a 15-min demo"'
+                    value={formData.callToAction}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("callToAction", e.target.value)}
+                    onBlur={() => handleBlur("callToAction")}
+                    className={errors.callToAction ? "border-destructive" : ""}
+                    maxLength={limits.callToAction.max}
+                  />
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-muted-foreground">
+                      {errors.callToAction ? (
+                        <span className="text-destructive">{errors.callToAction}</span>
+                      ) : (
+                        "What do you want prospects to do? (10-100 chars)"
+                      )}
+                    </p>
+                    <span className="text-xs text-muted-foreground">
+                      {getCharCount("callToAction")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 7. Tone */}
+                <div className="space-y-2">
+                  <Label htmlFor="tone">
+                    Tone <span className="text-destructive">*</span>
+                  </Label>
                   <Select
                     value={formData.tone}
                     onValueChange={(value: string) => handleChange("tone", value)}
@@ -373,9 +388,10 @@ export default function Generate() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                      <SelectItem value="bold">Bold</SelectItem>
+                      <SelectItem value="Professional">Professional</SelectItem>
+                      <SelectItem value="Casual">Casual</SelectItem>
+                      <SelectItem value="Direct">Direct</SelectItem>
+                      <SelectItem value="Friendly">Friendly</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
