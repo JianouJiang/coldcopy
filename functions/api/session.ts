@@ -1,7 +1,3 @@
-interface Env {
-  DB: D1Database;
-}
-
 interface SessionResponse {
   plan: string;
   generationsUsed: number;
@@ -9,11 +5,19 @@ interface SessionResponse {
   canGenerate: boolean;
 }
 
+interface Context {
+  request: Request;
+  env: {
+    DB: D1Database;
+  };
+}
+
 /**
  * GET /api/session
  * Returns current session info or default anonymous state
  */
-export async function onRequest(request: Request, env: Env): Promise<Response> {
+export async function onRequest(context: Context): Promise<Response> {
+  const { request, env } = context;
   // Only allow GET
   if (request.method !== 'GET') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {

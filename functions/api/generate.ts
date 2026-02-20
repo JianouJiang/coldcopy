@@ -1,5 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 
+interface Context {
+  request: Request;
+  env: {
+    DB: D1Database;
+    RATE_LIMIT: KVNamespace;
+    ANTHROPIC_API_KEY: string;
+  };
+}
+
 interface Env {
   DB: D1Database;
   RATE_LIMIT: KVNamespace;
@@ -205,7 +214,8 @@ Return ONLY this JSON structure:
  * POST /api/generate
  * Generates a cold email sequence from user input
  */
-export async function onRequest(request: Request, env: Env): Promise<Response> {
+export async function onRequest(context: Context): Promise<Response> {
+  const { request, env } = context;
   // Only allow POST
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
