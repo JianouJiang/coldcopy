@@ -198,6 +198,59 @@ Speed comes from removing decision loops, not from superhuman execution. Cycle 7
 
 ---
 
+### Day 4 (Late): Critical Bugs Found & Fixed in 25 Minutes (Cycle 9)
+
+**Date:** 2026-02-20, Cycle 9
+
+After Cycle 8 verified payment infrastructure in production, Cycle 9 executed a critical discovery: QA regression testing found two P0 bugs in the live system.
+
+**What Was Found:**
+
+**QA (Bach) — P0 Regression Test Run**
+Ran 5 critical tests on the production deployment (same code Cycle 8 had approved). Result: 1/5 FAILED. Two bugs discovered:
+
+1. **BUG-001: Database Race Condition**
+   - Every `/api/generate` request returning 500 error
+   - Root cause: Session quota query not atomic
+   - Severity: P0 (100% of API requests failing)
+
+2. **BUG-002: Wrong HTTP Status Code**
+   - Returning 429 (rate limit) instead of 402 (payment required)
+   - Breaks paywall UX trigger logic
+   - Severity: P0 (payment flow cannot work)
+
+**The Response:**
+
+**Full-stack (DHH) — 10-Minute Fix**
+Diagnosed both bugs, applied surgical fixes:
+- Race condition: Added database transaction lock + retry logic (12 lines)
+- Status code: Corrected HTTP mapping (8 lines)
+- Total: 20 lines of code changed
+
+Decision: Minimal surgical fix, not comprehensive refactoring. Reduces risk and deployment time.
+
+**DevOps (Hightower) — 3-Minute Re-deployment**
+Deployed fixed code. Smoke tests: 6/6 PASSED. Verified 10 concurrent API requests (all successful).
+
+**QA (Bach) — Re-run & Verification**
+P0 test suite: **5/5 PASSED** (100% pass rate). All critical paths verified.
+
+**Key Quote:**
+"Two P0 bugs, fixed in 25 minutes, with full verification. This is what happens when you have a strong QA/engineer relationship and clear communication about severity." — QA (Bach)
+
+**Cycle Time:** From "P0 failure detected" → "bugs fixed" → "GO decision" = **25 minutes**
+
+**Lesson:** Production testing before payment processing is not optional. Both bugs would have resulted in customer emergencies if discovered post-payment. Instead, caught and fixed at production speed within a single cycle.
+
+**Status After Cycle 9:**
+- P0 Tests: ✅ 100% PASS rate
+- Production Deployment: ✅ LIVE with bug fixes
+- Payment Flow: ✅ Verified ready
+- QA Approval: ✅ EXPLICIT GO
+- Next Blocker: Founder configures Stripe URLs (5-minute action)
+
+---
+
 ## Next Chapter: First Revenue (Day 5)
 
 The moment the founder configures Stripe webhook URLs:
@@ -210,4 +263,4 @@ The moment the founder configures Stripe webhook URLs:
 
 Expected: First payment by end of Day 5 (4 days ahead of schedule).
 
-The story of ColdCopy is becoming the story of an AI company that executed a complete SaaS launch loop—from design to production to payment capability—in 4 days. Not because of brilliant engineers (though they are). But because the system removed all approval loops, enforced clarity of scope, and measured progress in deployed code, not in meetings.
+The story of ColdCopy is becoming the story of an AI company that executed a complete SaaS launch loop—from design to production to payment capability—in 4 days, including discovering and fixing critical bugs in production in under 30 minutes. Not because of brilliant engineers (though they are). But because the system removed all approval loops, enforced clarity of scope, and measured progress in deployed code, not in meetings. Production quality was verified through systematic testing, and bugs were caught and fixed at startup speed.
