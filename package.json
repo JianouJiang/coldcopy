@@ -1,0 +1,16 @@
+{
+  "name": "coldcopy",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "ColdCopy - AI-powered cold email sequence generator",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "dev": "cd frontend && npm run dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1"
+  }
+}

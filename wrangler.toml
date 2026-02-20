@@ -1,5 +1,6 @@
 name = "coldcopy"
 pages_build_output_dir = "frontend/dist"
+functions_dir = "functions"
 
 # Database bindings
 [[d1_databases]]
