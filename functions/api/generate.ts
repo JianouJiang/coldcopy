@@ -168,6 +168,9 @@ Return ONLY this JSON structure:
   const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
 
   try {
+    console.log('Calling Claude API with model:', 'claude-3-5-haiku-20241022');
+    console.log('API key present:', !!env.ANTHROPIC_API_KEY);
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -193,6 +196,7 @@ Return ONLY this JSON structure:
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('Claude API error response:', response.status, errorData);
       throw new Error(`Claude API error: ${response.status} ${JSON.stringify(errorData)}`);
     }
 
