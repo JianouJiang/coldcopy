@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { Paywall } from "@/components/Paywall";
 
 interface FormData {
   companyName: string;
@@ -51,6 +52,7 @@ export default function Generate() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   // Character limits (from design spec)
   const limits = {
@@ -150,6 +152,8 @@ export default function Generate() {
         });
 
         if (response.status === 402) {
+          // Show paywall modal instead of just a toast
+          setShowPaywall(true);
           toast({
             message: 'You have reached your generation limit. Upgrade to continue.',
             type: 'error',
@@ -203,8 +207,10 @@ export default function Generate() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 max-w-2xl py-12">
+    <>
+      <Paywall isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 max-w-2xl py-12">
         <div className="space-y-8">
           {/* Header */}
           <div className="space-y-4">
@@ -480,6 +486,7 @@ export default function Generate() {
           </form>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
