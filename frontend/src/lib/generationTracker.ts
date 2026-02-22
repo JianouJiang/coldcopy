@@ -36,7 +36,18 @@ export function trackCTAShown(type: 'modal' | 'banner') {
   // TODO: Send to analytics service when available
 }
 
-export function trackCTAClicked(tier: 'starter' | 'pro', source: 'modal' | 'banner') {
+export function trackCTAClicked(tier: 'monthly' | 'lifetime' | 'starter' | 'pro', source: 'modal' | 'banner') {
   console.log('[Analytics] Upgrade CTA clicked:', { tier, source });
   // TODO: Send to analytics service when available
+}
+
+// Check if user has paid (set after successful payment)
+export function hasPaidAccess(): boolean {
+  return localStorage.getItem('coldcopy_paid') === 'true';
+}
+
+// Grant paid access (called from success page)
+export function grantPaidAccess(): void {
+  localStorage.setItem('coldcopy_paid', 'true');
+  localStorage.removeItem(STORAGE_KEY); // Clear generation count
 }

@@ -11,6 +11,7 @@ import {
   trackCTAShown,
   trackCTAClicked,
 } from '@/lib/generationTracker';
+import { useT } from '@/lib/i18n';
 
 interface Email {
   subjectLineA: string;
@@ -25,6 +26,7 @@ interface Sequence {
 export default function Output() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useT();
   const [sequence, setSequence] = useState<Sequence | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -50,7 +52,7 @@ export default function Output() {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedIndex(index);
       toast({
-        message: 'Copied to clipboard!',
+        message: t('output.copied.toast'),
         type: 'success',
         duration: 2000,
       });
@@ -58,7 +60,7 @@ export default function Output() {
     });
   };
 
-  const handleUpgradeClick = (tier: 'starter' | 'pro') => {
+  const handleUpgradeClick = (tier: 'monthly' | 'lifetime') => {
     trackCTAClicked(tier, 'modal');
   };
 
@@ -89,14 +91,14 @@ export default function Output() {
               onClick={() => navigate('/generate')}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              ← Generate Another Sequence
+              {t('output.back')}
             </button>
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                Your Cold Email Sequence
+                {t('output.title')}
               </h1>
               <p className="text-muted-foreground">
-                Copy-paste ready for Lemlist, Instantly, Apollo, or your email tool
+                {t('output.subtitle')}
               </p>
             </div>
           </div>
@@ -106,14 +108,14 @@ export default function Output() {
             {sequence.emails.map((email, idx) => (
               <Card key={idx}>
                 <CardHeader>
-                  <CardTitle className="text-lg">Email {idx + 1}</CardTitle>
+                  <CardTitle className="text-lg">{t('output.email')} {idx + 1}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Subject Line A */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-medium text-foreground">
-                        Subject Line A (Variant 1)
+                        {t('output.subjectA')}
                       </label>
                       <Button
                         size="sm"
@@ -125,7 +127,7 @@ export default function Output() {
                             : ''
                         }
                       >
-                        {copiedIndex === `subj-a-${idx}` ? 'Copied!' : 'Copy'}
+                        {copiedIndex === `subj-a-${idx}` ? t('output.copied') : t('output.copy')}
                       </Button>
                     </div>
                     <div className="p-3 bg-muted rounded-lg border border-border">
@@ -137,7 +139,7 @@ export default function Output() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-medium text-foreground">
-                        Subject Line B (Variant 2)
+                        {t('output.subjectB')}
                       </label>
                       <Button
                         size="sm"
@@ -149,7 +151,7 @@ export default function Output() {
                             : ''
                         }
                       >
-                        {copiedIndex === `subj-b-${idx}` ? 'Copied!' : 'Copy'}
+                        {copiedIndex === `subj-b-${idx}` ? t('output.copied') : t('output.copy')}
                       </Button>
                     </div>
                     <div className="p-3 bg-muted rounded-lg border border-border">
@@ -161,7 +163,7 @@ export default function Output() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-medium text-foreground">
-                        Email Body
+                        {t('output.body')}
                       </label>
                       <Button
                         size="sm"
@@ -171,7 +173,7 @@ export default function Output() {
                           copiedIndex === `body-${idx}` ? 'bg-green-500/20 border-green-500' : ''
                         }
                       >
-                        {copiedIndex === `body-${idx}` ? 'Copied!' : 'Copy'}
+                        {copiedIndex === `body-${idx}` ? t('output.copied') : t('output.copy')}
                       </Button>
                     </div>
                     <div className="p-4 bg-muted rounded-lg border border-border whitespace-pre-wrap">
@@ -187,16 +189,16 @@ export default function Output() {
 
           {/* CTA Section */}
           <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-8 text-center space-y-4">
-            <h2 className="text-2xl font-bold text-foreground">Want More Sequences?</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('output.upgrade.title')}</h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Upgrade to generate unlimited sequences with custom variations and advanced features.
+              {t('output.upgrade.desc')}
             </p>
             <Button
               size="lg"
               className="bg-primary hover:bg-primary/90"
               onClick={() => setShowPaywall(true)}
             >
-              Upgrade Now
+              {t('output.upgrade.button')}
             </Button>
           </div>
 
@@ -206,7 +208,7 @@ export default function Output() {
               variant="outline"
               onClick={() => navigate('/generate')}
             >
-              Generate Another Sequence
+              {t('output.another')}
             </Button>
           </div>
           </div>

@@ -18,11 +18,13 @@ import { Paywall } from "@/components/Paywall";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
 import {
   incrementGenerationCount,
-  shouldShowUpgradeModal,
   shouldShowUpgradeBanner,
   trackCTAShown,
   trackCTAClicked,
+  hasReachedLimit,
+  hasPaidAccess,
 } from "@/lib/generationTracker";
+import { useT } from "@/lib/i18n";
 
 interface FormData {
   companyName: string;
@@ -47,6 +49,7 @@ interface FormErrors {
 export default function Generate() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useT();
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
     targetJobTitle: "",
@@ -85,16 +88,16 @@ export default function Generate() {
     const trimmedValue = value.trim();
 
     if (!trimmedValue) {
-      return "This field is required";
+      return t('generate.validation.required');
     }
 
     const limit = limits[name as keyof typeof limits];
     if (limit) {
       if (trimmedValue.length < limit.min) {
-        return `Minimum ${limit.min} characters required`;
+        return t('generate.validation.min', { min: limit.min });
       }
       if (trimmedValue.length > limit.max) {
-        return `Maximum ${limit.max} characters`;
+        return t('generate.validation.max', { max: limit.max });
       }
     }
 
@@ -125,6 +128,17 @@ export default function Generate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if user has reached free limit (3 generations) and hasn't paid
+    if (hasReachedLimit() && !hasPaidAccess()) {
+      setShowPaywall(true);
+      trackCTAShown('modal');
+      toast({
+        message: 'You\'ve used your 3 free sequences. Upgrade to continue.',
+        type: 'error',
+      });
+      return; // BLOCK submission
+    }
 
     // Validate all fields
     const newErrors: FormErrors = {};
@@ -169,7 +183,7 @@ export default function Generate() {
           // Show paywall modal instead of just a toast
           setShowPaywall(true);
           toast({
-            message: 'You have reached your generation limit. Upgrade to continue.',
+            message: t('generate.error.limit'),
             type: 'error',
           });
           return;
@@ -178,7 +192,7 @@ export default function Generate() {
         if (!response.ok) {
           const error = await response.json();
           toast({
-            message: error.message || 'Failed to generate sequence. Please try again.',
+            message: error.message || t('generate.error.failed'),
             type: 'error',
           });
           return;
@@ -186,24 +200,20 @@ export default function Generate() {
 
         const result = await response.json();
 
-        // Increment generation counter
-        incrementGenerationCount();
+        // Increment generation counter (only for non-paid users)
+        if (!hasPaidAccess()) {
+          incrementGenerationCount();
+        }
 
         // Store sequence in sessionStorage for the output page
         sessionStorage.setItem('sequence', JSON.stringify(result.sequence));
-
-        // Check if we should show upgrade modal (exactly at 3rd generation)
-        if (shouldShowUpgradeModal()) {
-          setShowPaywall(true);
-          trackCTAShown('modal');
-        }
 
         // Navigate to output page
         navigate('/output');
       } catch (error) {
         console.error('Generation error:', error);
         toast({
-          message: 'An error occurred. Please try again.',
+          message: t('generate.error.generic'),
           type: 'error',
         });
       } finally {
@@ -232,7 +242,7 @@ export default function Generate() {
     return `${current}/${max}`;
   };
 
-  const handleUpgradeClick = (tier: 'starter' | 'pro') => {
+  const handleUpgradeClick = (tier: 'monthly' | 'lifetime') => {
     trackCTAClicked(tier, 'modal');
   };
 
@@ -259,14 +269,14 @@ export default function Generate() {
               onClick={() => navigate("/")}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              ← Back to Home
+              {t('generate.back')}
             </button>
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                Generate Your Cold Email Sequence
+                {t('generate.title')}
               </h1>
               <p className="text-muted-foreground">
-                Fill out the form below to generate a SaaS-specific cold email sequence (takes 2-3 minutes)
+                {t('generate.subtitle')}
               </p>
             </div>
           </div>
@@ -275,17 +285,17 @@ export default function Generate() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Basic Information</CardTitle>
+                <CardTitle className="text-xl">{t('generate.section.basic')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* 1. Company Name */}
                 <div className="space-y-2">
                   <Label htmlFor="companyName">
-                    Company Name <span className="text-destructive">*</span>
+                    {t('generate.field.companyName')} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="companyName"
-                    placeholder="e.g., Acme Analytics"
+                    placeholder={t('generate.field.companyName.placeholder')}
                     value={formData.companyName}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("companyName", e.target.value)}
                     onBlur={() => handleBlur("companyName")}
@@ -297,7 +307,7 @@ export default function Generate() {
                       {errors.companyName ? (
                         <span className="text-destructive">{errors.companyName}</span>
                       ) : (
-                        "Your product or company name"
+                        t('generate.field.companyName.help')
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
@@ -309,11 +319,11 @@ export default function Generate() {
                 {/* 2. Target Job Title */}
                 <div className="space-y-2">
                   <Label htmlFor="targetJobTitle">
-                    Target Job Title <span className="text-destructive">*</span>
+                    {t('generate.field.targetJobTitle')} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="targetJobTitle"
-                    placeholder="e.g., VP of Marketing"
+                    placeholder={t('generate.field.targetJobTitle.placeholder')}
                     value={formData.targetJobTitle}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("targetJobTitle", e.target.value)}
                     onBlur={() => handleBlur("targetJobTitle")}
@@ -325,7 +335,7 @@ export default function Generate() {
                       {errors.targetJobTitle ? (
                         <span className="text-destructive">{errors.targetJobTitle}</span>
                       ) : (
-                        "Who are you targeting?"
+                        t('generate.field.targetJobTitle.help')
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
@@ -338,17 +348,17 @@ export default function Generate() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Problem & Solution</CardTitle>
+                <CardTitle className="text-xl">{t('generate.section.problem')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* 3. Problem They Face */}
                 <div className="space-y-2">
                   <Label htmlFor="problemTheyFace">
-                    Problem They Face <span className="text-destructive">*</span>
+                    {t('generate.field.problemTheyFace')} <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id="problemTheyFace"
-                    placeholder="e.g., They lose 30-40% of revenue to cart abandonment but don't know why"
+                    placeholder={t('generate.field.problemTheyFace.placeholder')}
                     value={formData.problemTheyFace}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange("problemTheyFace", e.target.value)}
                     onBlur={() => handleBlur("problemTheyFace")}
@@ -361,7 +371,7 @@ export default function Generate() {
                       {errors.problemTheyFace ? (
                         <span className="text-destructive">{errors.problemTheyFace}</span>
                       ) : (
-                        "What pain point does your product solve? (10-300 chars)"
+                        t('generate.field.problemTheyFace.help')
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
@@ -373,11 +383,11 @@ export default function Generate() {
                 {/* 4. Your Product */}
                 <div className="space-y-2">
                   <Label htmlFor="yourProduct">
-                    Your Product <span className="text-destructive">*</span>
+                    {t('generate.field.yourProduct')} <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id="yourProduct"
-                    placeholder="e.g., Real-time analytics dashboard for e-commerce stores. Shows conversion funnels, cart abandonment, and LTV cohorts."
+                    placeholder={t('generate.field.yourProduct.placeholder')}
                     value={formData.yourProduct}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange("yourProduct", e.target.value)}
                     onBlur={() => handleBlur("yourProduct")}
@@ -390,7 +400,7 @@ export default function Generate() {
                       {errors.yourProduct ? (
                         <span className="text-destructive">{errors.yourProduct}</span>
                       ) : (
-                        "What does your product do? (10-200 chars)"
+                        t('generate.field.yourProduct.help')
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
@@ -402,11 +412,11 @@ export default function Generate() {
                 {/* 5. Key Benefit */}
                 <div className="space-y-2">
                   <Label htmlFor="keyBenefit">
-                    Key Benefit <span className="text-destructive">*</span>
+                    {t('generate.field.keyBenefit')} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="keyBenefit"
-                    placeholder='e.g., "Identify why 60% of carts abandon in under 10 seconds"'
+                    placeholder={t('generate.field.keyBenefit.placeholder')}
                     value={formData.keyBenefit}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("keyBenefit", e.target.value)}
                     onBlur={() => handleBlur("keyBenefit")}
@@ -418,7 +428,7 @@ export default function Generate() {
                       {errors.keyBenefit ? (
                         <span className="text-destructive">{errors.keyBenefit}</span>
                       ) : (
-                        "The ONE main benefit prospects care about (10-150 chars)"
+                        t('generate.field.keyBenefit.help')
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
@@ -431,17 +441,17 @@ export default function Generate() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Call to Action & Tone</CardTitle>
+                <CardTitle className="text-xl">{t('generate.section.cta')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* 6. Call to Action */}
                 <div className="space-y-2">
                   <Label htmlFor="callToAction">
-                    Call to Action <span className="text-destructive">*</span>
+                    {t('generate.field.callToAction')} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="callToAction"
-                    placeholder='e.g., "Book a 15-min demo"'
+                    placeholder={t('generate.field.callToAction.placeholder')}
                     value={formData.callToAction}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("callToAction", e.target.value)}
                     onBlur={() => handleBlur("callToAction")}
@@ -453,7 +463,7 @@ export default function Generate() {
                       {errors.callToAction ? (
                         <span className="text-destructive">{errors.callToAction}</span>
                       ) : (
-                        "What do you want prospects to do? (10-100 chars)"
+                        t('generate.field.callToAction.help')
                       )}
                     </p>
                     <span className="text-xs text-muted-foreground">
@@ -465,7 +475,7 @@ export default function Generate() {
                 {/* 7. Tone */}
                 <div className="space-y-2">
                   <Label htmlFor="tone">
-                    Tone <span className="text-destructive">*</span>
+                    {t('generate.field.tone')} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={formData.tone}
@@ -475,14 +485,14 @@ export default function Generate() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Professional">Professional</SelectItem>
-                      <SelectItem value="Casual">Casual</SelectItem>
-                      <SelectItem value="Direct">Direct</SelectItem>
-                      <SelectItem value="Friendly">Friendly</SelectItem>
+                      <SelectItem value="Professional">{t('generate.tone.professional')}</SelectItem>
+                      <SelectItem value="Casual">{t('generate.tone.casual')}</SelectItem>
+                      <SelectItem value="Direct">{t('generate.tone.direct')}</SelectItem>
+                      <SelectItem value="Friendly">{t('generate.tone.friendly')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Choose the tone for your email sequence
+                    {t('generate.field.tone.help')}
                   </p>
                 </div>
               </CardContent>
@@ -494,7 +504,7 @@ export default function Generate() {
             {isLoading && (
               <div className="w-full bg-primary rounded-lg p-4 space-y-2">
                 <div className="text-sm font-medium text-primary-foreground text-center">
-                  Generating your sequence...
+                  {t('generate.loading')}
                 </div>
                 {/* 12-second progress bar animation */}
                 <div className="w-full bg-primary-foreground/20 rounded-full h-2 overflow-hidden">
@@ -506,7 +516,7 @@ export default function Generate() {
                   />
                 </div>
                 <div className="text-xs text-primary-foreground/70 text-center">
-                  This usually takes 3-5 seconds...
+                  {t('generate.loading.time')}
                 </div>
               </div>
             )}
@@ -517,12 +527,12 @@ export default function Generate() {
                 className="w-full"
                 disabled={!isFormValid()}
               >
-                Generate Sequence
+                {t('generate.submit')}
               </Button>
             )}
 
             <p className="text-xs text-center text-muted-foreground">
-              All fields marked with * are required
+              {t('generate.required.note')}
             </p>
           </form>
         </div>

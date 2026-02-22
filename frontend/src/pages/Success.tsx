@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
+import { grantPaidAccess } from '@/lib/generationTracker';
 
 export default function Success() {
   const navigate = useNavigate();
@@ -10,6 +11,9 @@ export default function Success() {
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
+    // Grant unlimited access to paid users
+    grantPaidAccess();
+
     // Track conversion event (if analytics is set up)
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'purchase', {
@@ -37,39 +41,27 @@ export default function Success() {
               Payment Successful!
             </h1>
             <p className="text-xl text-muted-foreground">
-              Thank you for upgrading to ColdCopy Pro
+              You now have unlimited access to ColdCopy
             </p>
           </div>
 
           {/* Next Steps */}
           <div className="bg-muted/50 rounded-lg p-6 space-y-4 text-left">
             <h2 className="text-lg font-semibold text-foreground">
-              What happens next?
+              You're all set!
             </h2>
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-start">
-                <span className="text-primary mr-2 mt-1">1.</span>
-                <span>
-                  Check your email for payment confirmation from Stripe
-                </span>
+                <span className="text-primary mr-2 mt-1">✓</span>
+                <span>Your payment has been processed successfully</span>
               </li>
               <li className="flex items-start">
-                <span className="text-primary mr-2 mt-1">2.</span>
-                <span>
-                  Your quota will be upgraded within <strong>24 hours</strong> (manual process for MVP)
-                </span>
+                <span className="text-primary mr-2 mt-1">✓</span>
+                <span>You now have <strong>unlimited access</strong> to generate cold email sequences</span>
               </li>
               <li className="flex items-start">
-                <span className="text-primary mr-2 mt-1">3.</span>
-                <span>
-                  You'll receive a welcome email with instructions to start generating unlimited sequences
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2 mt-1">4.</span>
-                <span>
-                  Need help? Reply to the welcome email or contact support
-                </span>
+                <span className="text-primary mr-2 mt-1">✓</span>
+                <span>Click below to continue generating sequences</span>
               </li>
             </ul>
           </div>
@@ -81,10 +73,10 @@ export default function Success() {
               className="w-full"
               onClick={() => navigate('/generate')}
             >
-              Return to ColdCopy
+              Start Generating Sequences
             </Button>
             <p className="text-sm text-muted-foreground">
-              Your transaction ID: <code className="text-xs">{sessionId || 'N/A'}</code>
+              Transaction ID: <code className="text-xs">{sessionId || 'N/A'}</code>
             </p>
           </div>
         </CardContent>

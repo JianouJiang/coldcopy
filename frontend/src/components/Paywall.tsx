@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -7,121 +6,49 @@ interface PaywallProps {
   isOpen: boolean;
   onClose: () => void;
   source?: 'modal' | 'banner';
-  onUpgradeClick?: (tier: 'starter' | 'pro') => void;
+  onUpgradeClick?: (tier: 'monthly' | 'lifetime') => void;
 }
 
-export function Paywall({ isOpen, onClose, onUpgradeClick }: PaywallProps) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
+export function Paywall({ isOpen, onUpgradeClick }: PaywallProps) {
 
+  useEffect(() => {
     if (isOpen) {
-      window.addEventListener('keydown', handleEscape);
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      window.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const STARTER_LINK = 'https://buy.stripe.com/9B6dR9ath4cR30W68S0VO01';
-  const PRO_LINK = 'https://buy.stripe.com/dRm14n44TgZD7hc2WG0VO02';
+  // LIVE Stripe Payment Links (created 2026-02-22)
+  const MONTHLY_LINK = 'https://buy.stripe.com/cNieVd0SHbFjfNI7cW0VO0e';
+  const LIFETIME_LINK = 'https://buy.stripe.com/cNi8wP7h5eRv7hc8h00VO0f';
 
   return (
-    <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-background border border-border rounded-lg max-w-4xl w-full mx-auto shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-border">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              You've Reached Your Free Limit
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Upgrade to generate more cold email sequences
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Close"
-          >
-            <X className="w-6 h-6" />
-          </button>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-background border border-border rounded-lg max-w-4xl w-full mx-auto shadow-2xl">
+        {/* Header - NO CLOSE BUTTON */}
+        <div className="p-6 border-b border-border text-center">
+          <h2 className="text-2xl font-bold text-foreground">
+            You've used your 3 free sequences
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Continue with unlimited sequences
+          </p>
         </div>
 
         {/* Pricing Cards */}
         <div className="p-6 grid md:grid-cols-2 gap-6">
-          {/* Starter Plan */}
+          {/* Monthly Plan */}
           <Card className="border-border">
             <CardHeader>
-              <CardTitle className="text-xl">Starter</CardTitle>
+              <CardTitle className="text-xl">Monthly</CardTitle>
               <div className="mt-4">
                 <span className="text-4xl font-bold text-foreground">$19</span>
-                <span className="text-muted-foreground ml-2">one-time</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <ul className="space-y-3">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">
-                    <strong>50 email sequences</strong>
-                  </span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">A/B subject line variants</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">SaaS-optimized copy</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">Copy-paste ready for any tool</span>
-                </li>
-              </ul>
-
-              <a
-                href={STARTER_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => onUpgradeClick?.('starter')}
-              >
-                <Button size="lg" variant="outline" className="w-full">
-                  Get Starter
-                </Button>
-              </a>
-
-              <p className="text-xs text-center text-muted-foreground">
-                Perfect for testing ColdCopy
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Pro Plan */}
-          <Card className="border-2 border-primary relative shadow-lg">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-              Most Popular
-            </div>
-            <CardHeader>
-              <CardTitle className="text-xl">Pro</CardTitle>
-              <div className="mt-4">
-                <span className="text-4xl font-bold text-foreground">$39</span>
                 <span className="text-muted-foreground ml-2">/month</span>
               </div>
             </CardHeader>
@@ -129,43 +56,88 @@ export function Paywall({ isOpen, onClose, onUpgradeClick }: PaywallProps) {
               <ul className="space-y-3">
                 <li className="flex items-start">
                   <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">
-                    <strong>Unlimited</strong> sequences
-                  </span>
+                  <span className="text-foreground">Unlimited cold email sequences</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">A/B subject line variants</span>
+                  <span className="text-foreground">AI-powered personalization</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">SaaS-optimized copy</span>
+                  <span className="text-foreground">7-email sequence generation</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">Copy-paste ready for any tool</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">✓</span>
-                  <span className="text-foreground">
-                    <strong>Priority support</strong>
-                  </span>
+                  <span className="text-foreground">Cancel anytime</span>
                 </li>
               </ul>
 
               <a
-                href={PRO_LINK}
+                href={MONTHLY_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => onUpgradeClick?.('pro')}
+                onClick={() => onUpgradeClick?.('monthly')}
               >
-                <Button size="lg" className="w-full">
-                  Go Pro
+                <Button size="lg" variant="outline" className="w-full">
+                  Subscribe Monthly
                 </Button>
               </a>
 
               <p className="text-xs text-center text-muted-foreground">
-                Best for serious outbound campaigns
+                Billed monthly. Cancel anytime.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Lifetime Plan */}
+          <Card className="border-2 border-primary relative shadow-lg">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+              Best Value
+            </div>
+            <CardHeader>
+              <CardTitle className="text-xl">Lifetime</CardTitle>
+              <div className="mt-4">
+                <span className="text-4xl font-bold text-foreground">$49</span>
+                <span className="text-muted-foreground ml-2">one-time</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">✓</span>
+                  <span className="text-foreground">Unlimited cold email sequences</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">✓</span>
+                  <span className="text-foreground">AI-powered personalization</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">✓</span>
+                  <span className="text-foreground">7-email sequence generation</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">✓</span>
+                  <span className="text-foreground">Lifetime access - pay once, use forever</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">✓</span>
+                  <span className="text-foreground"><strong>Save $180+ vs monthly</strong></span>
+                </li>
+              </ul>
+
+              <a
+                href={LIFETIME_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => onUpgradeClick?.('lifetime')}
+              >
+                <Button size="lg" className="w-full">
+                  Get Lifetime Access
+                </Button>
+              </a>
+
+              <p className="text-xs text-center text-muted-foreground">
+                One-time payment. No recurring charges.
               </p>
             </CardContent>
           </Card>

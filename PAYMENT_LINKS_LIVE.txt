@@ -1,0 +1,11 @@
+COLDCOPY LIVE PAYMENT LINKS
+============================================================
+
+MONTHLY_LINK=https://buy.stripe.com/cNieVd0SHbFjfNI7cW0VO0e
+LIFETIME_LINK=https://buy.stripe.com/cNi8wP7h5eRv7hc8h00VO0f
+
+MONTHLY_PRODUCT_ID=prod_U1ZYKETWztCjDH
+MONTHLY_PRICE_ID=price_1T3WPWHxLm31PjzMqhMwqi33
+
+LIFETIME_PRODUCT_ID=prod_U1ZYdV6MD240dc
+LIFETIME_PRICE_ID=price_1T3WPXHxLm31PjzMgqkGwuA0
