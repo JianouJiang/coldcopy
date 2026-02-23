@@ -31,3 +31,8 @@ id = "82359391e9704000a8d5f1efadf9b27f"
 # GitHub integration auto-deploy
 # Build command: npm run build
 # Node version: 18
+
+# Cron triggers (for agent mode background tasks like campaign processing)
+# NOTE: Cloudflare Pages does NOT support [triggers] cron in wrangler.toml.
+# Cron must be configured via a separate Cron Trigger Worker or via
+# the Cloudflare Dashboard (Workers & Pages > your worker > Triggers > Cron).

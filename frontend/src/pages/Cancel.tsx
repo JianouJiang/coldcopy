@@ -2,9 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { XCircle } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 export default function Cancel() {
   const navigate = useNavigate();
+  const { t } = useT();
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -20,19 +22,19 @@ export default function Cancel() {
           {/* Cancel Message */}
           <div className="space-y-4">
             <h1 className="text-3xl font-bold text-foreground">
-              Payment Cancelled
+              {t('cancel.title')}
             </h1>
             <p className="text-lg text-muted-foreground">
-              No worries! You can upgrade anytime.
+              {t('cancel.subtitle')}
             </p>
           </div>
 
           {/* Message */}
           <div className="bg-muted/50 rounded-lg p-6 text-left">
-            <p className="text-muted-foreground">
-              You still have access to your <strong>free generation</strong>.
-              Come back anytime you're ready to generate more sequences.
-            </p>
+            <p
+              className="text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: t('cancel.message') }}
+            />
           </div>
 
           {/* Action Buttons */}
@@ -42,7 +44,7 @@ export default function Cancel() {
               className="w-full"
               onClick={() => navigate('/generate')}
             >
-              Back to ColdCopy
+              {t('cancel.back')}
             </Button>
             <Button
               size="lg"
@@ -50,7 +52,7 @@ export default function Cancel() {
               className="w-full"
               onClick={() => navigate('/')}
             >
-              Go to Homepage
+              {t('cancel.home')}
             </Button>
           </div>
         </CardContent>

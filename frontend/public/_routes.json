@@ -1,23 +1,5 @@
 {
   "version": 1,
-  "include": ["/*"],
-  "exclude": ["/assets/*", "/favicon.ico"],
-  "rules": [
-    {
-      "pattern": "/api/test-echo",
-      "function": "api/test-echo"
-    },
-    {
-      "pattern": "/api/debug",
-      "function": "api/debug"
-    },
-    {
-      "pattern": "/api/generate",
-      "function": "api/generate"
-    },
-    {
-      "pattern": "/api/session",
-      "function": "api/session"
-    }
-  ]
+  "include": ["/api/*"],
+  "exclude": []
 }

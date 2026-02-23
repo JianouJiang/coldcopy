@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useT } from '@/lib/i18n';
 
 interface UpgradeBannerProps {
   onUpgradeClick: () => void;
@@ -8,6 +9,7 @@ interface UpgradeBannerProps {
 
 export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
   const [isDismissed, setIsDismissed] = useState(false);
+  const { t } = useT();
 
   if (isDismissed) return null;
 
@@ -16,13 +18,13 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🎉</span>
+            <span className="text-2xl">&#x1F389;</span>
             <div>
               <p className="text-sm font-medium text-foreground">
-                You've generated 3+ sequences!
+                {t('banner.title')}
               </p>
               <p className="text-xs text-muted-foreground">
-                Upgrade to generate unlimited sequences + advanced features
+                {t('banner.subtitle')}
               </p>
             </div>
           </div>
@@ -32,7 +34,7 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
               onClick={onUpgradeClick}
               className="bg-primary hover:bg-primary/90"
             >
-              Upgrade Now
+              {t('banner.cta')}
             </Button>
             <button
               onClick={() => setIsDismissed(true)}
